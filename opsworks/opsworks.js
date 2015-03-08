@@ -48,17 +48,33 @@ module.exports = {
         });
     },
 
-    instanceIds: function (opsworks, params, callBack) {
-        opsworks.describeInstances(params, function(err, data) {
-            if (err) console.log(err, err.stack);
-            else {
-                var ids = data["Instances"].map(
-                    function (instance) {
-                        return instance["InstanceId"]
+    instanceIds: function (opsworks, info, callBack) {
+        module.exports.stackId(opsworks, {Name: info["StackName"]}, function(stackId) {
+            if (info["layerName"]) {
+                module.exports.layerId(opsworks,
+                    { StackId: stackId },
+                    { Name: info["layerName"] },
+                    function (layerId) {
+                        describeInstances({LayerId: layerId});
                     }
                 );
-                callBack(ids);
+            } else {
+                describeInstances({StackId: stackId});
             }
         });
-    }
+
+        function describeInstances(params) {
+            opsworks.describeInstances(params, function(err, data) {
+                if (err) console.log(err, err.stack);
+                else {
+                    var ids = data["Instances"].map(
+                        function (instance) {
+                            return instance["InstanceId"]
+                        }
+                    );
+                    callBack(ids);
+                }
+            });
+        }
+    },
 };

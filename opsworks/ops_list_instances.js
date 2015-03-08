@@ -20,34 +20,14 @@ var opsworks = new AWS.OpsWorks();
 
 var ops = require('./opsworks');
 
-ops.stackId(opsworks,
-            {Name: stackName},
-            function (stackId) {
-                getLayers(stackId);
+ops.instanceIds(
+    opsworks,
+    { StackName: stackName,
+      LayerName: layerName },
+    function (instanceIds) {
+        instanceIds.map(
+            function (id){
+                console.info(id)
             }
-);
-
-function getLayers(stackId) {
-    params = { StackId: stackId };
-    selector = (layerName)
-                ? { Name: layerName }
-                : {};
-    ops.layerId(opsworks,
-                params,
-                selector,
-                function (layerId) {
-                    getInstances(stackId, layerId);
-                }
-    );
-}
-
-function getInstances(stackId, layerId) {
-    params = (layerName)
-                ? { LayerId: layerId }
-                : { StackId: stackId }
-
-    ops.instanceIds(opsworks, params, function (instanceIds) {
-        instanceIds.map(function (item){ console.info(item) });
-    });
-}
-
+        );
+});
