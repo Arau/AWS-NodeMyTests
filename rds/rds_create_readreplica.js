@@ -4,8 +4,8 @@ AWS.config.region = 'eu-central-1';
 
 var rds = new AWS.RDS();
 var params = {
-  DBInstanceIdentifier: 'Replica',             /* required */
-  SourceDBInstanceIdentifier: 'WordpressTest', /* required */
+  DBInstanceIdentifier: 'Replica-WordpressTest',    /* required */
+  SourceDBInstanceIdentifier: 'WordpressTest',      /* required */
   AutoMinorVersionUpgrade: false,
   DBInstanceClass: 'db.t2.micro',
   PubliclyAccessible: true,
