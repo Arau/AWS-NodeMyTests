@@ -10,16 +10,23 @@ opt = require('node-getopt').create([
 var path = opt['options']['file'];
 var instances = opt['options']['instance'];
 
+if (!path && !instances) {
+    console.log("Define a file or instances");
+    process.exit(-1);
+}
+
 if (path) {
     fs = require('fs');
-    instances = fs.readFileSync(path).toString().split("\n");
-    instances.pop(); // Delete the last item which is void ''.
+    instances = fs.readFileSync(path)
+                    .toString()
+                    .trim()
+                    .split("\n");
 }
 
 var AWS = require('aws-sdk');
 AWS.config.region = 'eu-central-1';
 var awsRds = new AWS.RDS();
-var rds = require('./rds')
+var rds = require('./rds');
 
 
 for (i in instances){
