@@ -20,10 +20,12 @@ var opsworks = new AWS.OpsWorks();
 
 var ops = require('./opsworks');
 
-ops.instanceIds(
+ops.instanceInfo(
     opsworks,
     { StackName: stackName,
-      LayerName: layerName },
+      LayerName: layerName,
+      selector:  'InstanceId',
+    },
     function (instanceIds) {
         instanceIds.map(
             function (id){

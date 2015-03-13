@@ -48,7 +48,7 @@ module.exports = {
         });
     },
 
-    instanceIds: function (opsworks, info, callBack) {
+    instanceInfo: function (opsworks, info, callBack) {
         module.exports.stackId(opsworks, {Name: info["StackName"]}, function(stackId) {
             if (info["layerName"]) {
                 module.exports.layerId(opsworks,
@@ -69,7 +69,7 @@ module.exports = {
                 else {
                     var ids = data["Instances"].map(
                         function (instance) {
-                            return instance["InstanceId"]
+                            return instance[ info["selector"] ];
                         }
                     );
                     callBack(ids);
