@@ -1,0 +1,52 @@
+#!/usr/bin/env nodejs
+
+opt = require('node-getopt').create([
+  ['h' , 'help'          , 'display this help']                ,
+  ['a' , 'autoscaling-group=ARG'      , 'Auto scaling group name'] ,
+  ['r' , 'region=ARG', "Region"]
+])
+.bindHelp()
+.parseSystem();
+
+var asgName = opt['options']['autoscaling-group'];
+var region  = opt['options']['region'];
+
+var aws = require('aws-sdk');
+aws.config.region = region;
+
+var ASG = require('../lib/asg.js');
+var ELB = require('../lib/elb.js');
+
+var prodAsg = new ASG(aws, asgName);
+prodAsg.populate(runNewEnv);
+
+console.info('Preparing preproduction environment');
+
+function runNewEnv () {
+    var lbNames = prodAsg.lbNames();
+    var prodElb = new ELB(aws, lbNames[0]);
+    prodElb.populate(createElb);
+
+    function createElb() {
+        var preLbName = 'pre-' + lbNames[0];
+        var preElb = new ELB(aws, preLbName);
+        var params = preElb.getParamsFromElb(prodElb);
+        preElb.create(params, function (dns) {
+            console.info("Elastic Load Balancer created.");
+            console.info("DNS of ELB: ", dns);
+            createAsg(preLbName);
+        });
+    }
+
+    function createAsg(elbName) {
+        var preAsgName = 'pre_' + asgName;
+        var newAsg = new ASG(aws, preAsgName);
+        var params = newAsg.getParamsFromAsg(prodAsg);
+        params['LoadBalancerNames'] = [ elbName ];
+        newAsg.create(params, function(){
+            console.info("Autoscaling Group created starting "
+                         + params['DesiredCapacity']
+                         + ' machines.');
+        });
+    }
+}
