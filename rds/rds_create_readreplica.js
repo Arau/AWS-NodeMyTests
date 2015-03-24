@@ -1,3 +1,4 @@
+#!/usr/bin/env nodejs
 
 var AWS = require('aws-sdk');
 AWS.config.region = 'eu-central-1';
