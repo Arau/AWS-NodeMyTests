@@ -1,3 +1,5 @@
+#!/usr/bin/env nodejs
+
 opt = require('node-getopt').create([
   ['h' , 'help'          , 'display this help']                ,
   ['f' , 'file=ARG'      , 'Path of the file which has the DBInstanceIdentifier names'] ,
